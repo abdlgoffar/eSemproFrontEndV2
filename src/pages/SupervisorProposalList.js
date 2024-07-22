@@ -1,32 +1,28 @@
 
-
-
-
-
-
 import * as React from 'react';
-import { Box, CircularProgress, CssBaseline, Grid, Pagination, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import { Box, CircularProgress, CssBaseline, FormLabel, Grid, Pagination, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import AppBarAndDrawer from "../components/AppBarAndDrawer";
 import Feed from "../components/Feed";
-import { headStudyProgramPages } from "../helpers/constants";
+import { supervisorPages } from "../helpers/constants";
 
 import { useNavigate } from "react-router-dom";
-import { useSession } from "../contexts/SessionContext";
-import { getHeadStudyProgramProposal } from "../api/headStudyPrograms";
+import { getSupervisorProposal } from '../api/supervisors';
+import { useSession } from '../contexts/SessionContext';
+
 
 function Fill() {
     const { token } = useSession();
     const [proposals, setProposals] = React.useState([]);
 
     const [total, setTotal] = React.useState(0);
-    const [perPage, setPerPage] = React.useState(5);
+    const [perPage, setPerPage] = React.useState(1);
     const [page, setPage] = React.useState(1);
 
     const [loading, setLoading] = React.useState(true);
     const navigate = useNavigate();
 
     function navigateToProposalDetail(id) {
-        navigate(`/head-study-programs/proposal/detail/${id}`);
+        navigate(`/supervisors/proposal/detail/${id}`);
     }
 
     // Get data
@@ -34,13 +30,12 @@ function Fill() {
         async function get() {
             setLoading(true); // Set loading to true while fetching data
             try {
-                const response = await getHeadStudyProgramProposal(token, page);
-                console.log(response.data);
+                const response = await getSupervisorProposal(token, page);
                 setProposals(response.data); // Adjust this according to your API response
                 setTotal(response.total); // Adjust this according to your API response
                 setPerPage(response.per_page); // Adjust this according to your API response
             } catch (error) {
-                console.log('Error get head study program proposal', error.message);
+                console.log('Error supervisor proposal', error.message);
             } finally {
                 setLoading(false); // Set loading to false after fetching data
             }
@@ -61,9 +56,9 @@ function Fill() {
                         <TableCell>Name</TableCell>
                         <TableCell>Nrp</TableCell>
                         <TableCell>Title</TableCell>
-                        <TableCell>Hasil Seminar</TableCell>
-                        <TableCell>Kaprodi</TableCell>
-                        <TableCell>Pembimbing</TableCell>
+                        <TableCell>Upload Date</TableCell>
+                        <TableCell>Status</TableCell>
+
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -75,14 +70,14 @@ function Fill() {
                         </TableRow>
                     ) : (
                         proposals.map((v, i) => (
-                            <TableRow sx={{ cursor: "pointer" }} key={i} onClick={() => navigateToProposalDetail(v.id)}>
+                            <TableRow key={i} >
                                 <TableCell>{(page - 1) * perPage + i + 1}</TableCell>
-                                <TableCell>{v.student_name}</TableCell>
+                                <TableCell>{v.name}</TableCell>
                                 <TableCell>{v.nrp}</TableCell>
                                 <TableCell>{v.title}</TableCell>
-                                <TableCell>{v.coordinator_approval_status}</TableCell>
-                                <TableCell>{v.head_study_program_approval_status}</TableCell>
-                                <TableCell>{v.supervisors || "Tidak Ada"}</TableCell>
+                                <TableCell>{v.upload_date}</TableCell>
+                                <TableCell>{v.supervisors_approval_status}</TableCell>
+
                             </TableRow>
                         ))
                     )}
@@ -97,16 +92,24 @@ function Fill() {
     );
 }
 
-const HeadStudyProgramProposal = () => {
+const SupervisorProposalList = () => {
+
     return (
+
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <AppBarAndDrawer title={"Tentukan Penguji dan Kelas Ujian"} pages={headStudyProgramPages()} />
+
+            {/* Navigation or appbar and drawer */}
+            <AppBarAndDrawer title={"Daftar Proposal"} pages={supervisorPages()} />
+
+            {/* Content */}
             <Feed>
                 <Fill />
             </Feed>
+
         </Box>
+
     )
 }
 
-export default HeadStudyProgramProposal;
+export default SupervisorProposalList;

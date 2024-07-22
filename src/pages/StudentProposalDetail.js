@@ -5,7 +5,6 @@ import { Alert, Avatar, Box, Button, Chip, CircularProgress, CssBaseline, Grid, 
 import AppBarAndDrawer from "../components/AppBarAndDrawer";
 import Feed from "../components/Feed";
 import { studentPages } from "../helpers/constants";
-import BrowserUpdatedIcon from '@mui/icons-material/BrowserUpdated';
 import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import { getStudentProposalByProposalId, revisionProposal } from '../api/students';
 import { useParams } from 'react-router-dom';
@@ -13,9 +12,10 @@ import { useSession } from '../contexts/SessionContext';
 import NotFound from './NotFound';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import Divider from '@mui/material/Divider';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
+import { getNewProposalPdf, getOldProposalPdf } from '../api/proposals';
 
 
 
@@ -36,6 +36,7 @@ function Fill(params) {
     const { proposalId } = useParams();
     const { token } = useSession();
     const [proposal, setProposal] = React.useState("");
+    const [student, setStudent] = React.useState("");
     const [getLoading, setGetLoading] = React.useState(true);
     const [postLoading, setPostLoading] = React.useState(false);
     const [redirectToReferrer, setRedirectToReferrer] = React.useState(false);
@@ -45,6 +46,7 @@ function Fill(params) {
     const [supervisors, setSupervisors] = React.useState([]);
     const [error, setError] = React.useState(false);
     const [errorMessages, setErrorMessages] = React.useState([]);
+    const [coordinators, setCoordinators] = React.useState([]);
 
     const getStatusColor = (status) => {
 
@@ -92,12 +94,12 @@ function Fill(params) {
             try {
                 const response = await getStudentProposalByProposalId(token, proposalId);
                 setRedirectDataNotFound(false);
-                if (response.proposal.supervisors_approval_status === "revision") setDisabledButton(false);
-                if (response.proposal.examiners_approval_status === "revision") setDisabledButton(false);
-                console.log(response.proposal);
+                if (response.proposal.coordinator_approval_status === "revision") setDisabledButton(false);
                 setProposal(response.proposal);
                 setExaminers(response.examiners);
                 setSupervisors(response.supervisors);
+                setStudent(response.student);
+                setCoordinators(response.coordinator)
             } catch (error) {
                 if (error.response) {
                     if (error.response.data.errors.messages.not_found) setRedirectDataNotFound(true);
@@ -111,25 +113,68 @@ function Fill(params) {
     }, [proposalId, token]);
 
 
+    const handleDownloadOldPdf = async () => {
+        try {
+
+            const response = await getOldProposalPdf(proposalId, token);
+
+            // Check Content-Type header
+            const contentType = response.headers.get('Content-Type');
+
+
+            const url = window.URL.createObjectURL(new Blob([response], { type: contentType }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${proposal.title}`);
+            document.body.appendChild(link);
+            link.click();
+
+            // clear URL
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            setGetLoading(true);
+            console.error('Error get proposal pdf: ', error);
+        }
+    }
+
+    const handleDownloadNewPdf = async () => {
+        try {
+
+            const response = await getNewProposalPdf(proposalId, token);
+
+            // Check Content-Type header
+            const contentType = response.headers.get('Content-Type');
+
+
+            const url = window.URL.createObjectURL(new Blob([response], { type: contentType }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${proposal.title}`);
+            document.body.appendChild(link);
+            link.click();
+
+            // clear URL
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            setGetLoading(true);
+            console.error('Error get proposal pdf: ', error);
+        }
+    }
 
 
 
     async function revisionSubmit(e) {
         e.preventDefault();
 
-        console.log(pdf);
         const form = new FormData();
         if (typeof pdf === "undefined" || pdf === null || pdf === "") {
             form.append("proposal_file", " ");
         } else {
             form.append("proposal_file", pdf);
         }
-
-
-
         setPostLoading(true);
-
-
         try {
             await revisionProposal(form, token, proposalId);
             setPostLoading(false);
@@ -144,13 +189,9 @@ function Fill(params) {
 
     }
 
-
-
     if (redirectDataNotFound) return (<NotFound />)
 
-
     if (redirectToReferrer) return window.location.reload();
-
 
     return (
         <>
@@ -179,24 +220,21 @@ function Fill(params) {
                                                     variant="square"
                                                     src=""
                                                     sx={{
-
                                                         width: 200,
                                                         height: 200,
-
-
                                                     }}>
 
                                                 </Avatar>
                                             </Paper>
                                             <Paper square variant="outlined" sx={{ display: "flex", alignItems: "center", flexDirection: "column", marginTop: 1, paddingY: 2 }}>
-                                                <Typography variant="caption">
-                                                    Name: Abd Goffar
+                                                <Typography variant="subtitle2">
+                                                    Nama: {student.name}
                                                 </Typography>
-                                                <Typography variant="caption">
-                                                    Nrp: 211221006
+                                                <Typography variant="subtitle2">
+                                                    Nrp: {student.nrp}
                                                 </Typography>
-                                                <Typography variant="caption">
-                                                    Phone: 082317673883
+                                                <Typography variant="subtitle2">
+                                                    Phone: {student.phone}
                                                 </Typography>
                                             </Paper>
 
@@ -206,10 +244,14 @@ function Fill(params) {
                                             <Typography variant="body1" sx={{ background: "#EBEBEB", paddingY: 2, paddingX: 1, borderRadius: 1 }}>
                                                 {proposal.title}
                                             </Typography>
-                                            <BrowserUpdatedIcon sx={{ marginY: 1, background: "#1976D2", color: "white", p: "0.5px" }} />
+
+                                            <div style={{ width: "100%" }}>
+                                                <Chip size='small' color="primary" variant="outlined" style={{ marginRight: "10px", marginTop: "10px" }} onClick={handleDownloadOldPdf} sx={{}} icon={<FileDownloadIcon />} label="Proposal" />
+                                                <Chip size='small' color="primary" variant="outlined" style={{ marginTop: "10px" }} onClick={handleDownloadNewPdf} sx={{}} icon={<FileDownloadIcon />} label="Revisi" />
+                                            </div>
 
 
-                                            <Divider textAlign="left" sx={{ marginTop: 3 }}><Chip label={`Dosen Pembimbing ${supervisors.length}`} size="small" /></Divider>
+                                            <Divider textAlign="left" sx={{ marginTop: 3 }}><Chip label={`Dosen Pembimbing`} size="small" /></Divider>
 
                                             {
                                                 supervisors.map((v, i) => (
@@ -257,7 +299,7 @@ function Fill(params) {
                                                 ))
                                             }
 
-                                            <Divider textAlign="left" sx={{ marginTop: 5 }}><Chip label={`Dosen penguji ${examiners.length}`} size="small" /></Divider>
+                                            <Divider textAlign="left" sx={{ marginTop: 5 }}><Chip label={`Dosen penguji`} size="small" /></Divider>
 
                                             {
                                                 examiners.map((v, i) => (
@@ -273,17 +315,6 @@ function Fill(params) {
                                                                 primary={v.name}
                                                                 secondary={
                                                                     <React.Fragment>
-                                                                        <Typography
-                                                                            component="span"
-                                                                            sx={{
-                                                                                textTransform: 'uppercase',
-                                                                                fontSize: '0.6rem',
-                                                                                display: "block",
-                                                                                color: getStatusColor2(v.examiner_assessment_status)
-                                                                            }}
-                                                                        >
-                                                                            {v.examiner_assessment_status}
-                                                                        </Typography>
                                                                         {v.suggestion && (
                                                                             <React.Fragment>
                                                                                 <Typography
@@ -311,6 +342,42 @@ function Fill(params) {
                                                 ))
                                             }
 
+                                            <Divider textAlign="left" sx={{ marginTop: 5 }}><Chip label={`Dosen Coordinator`} size="small" /></Divider>
+
+                                            {
+                                                coordinators.map((v, i) => (
+                                                    <List
+                                                        sx={{ width: '100%', maxWidth: 400, bgcolor: 'background.paper', padding: 0 }}
+                                                        key={`examiner-${i}`}
+                                                    >
+                                                        <ListItem alignItems="flex-start" sx={{ paddingTop: 0, paddingBottom: 0 }}>
+                                                            <ListItemAvatar>
+                                                                <Avatar alt="Remy Sharp" src="" />
+                                                            </ListItemAvatar>
+                                                            <ListItemText
+                                                                primary={v.name}
+                                                                secondary={
+                                                                    <React.Fragment>
+                                                                        <Typography
+                                                                            component="span"
+                                                                            sx={{
+                                                                                textTransform: 'uppercase',
+                                                                                fontSize: '0.6rem',
+                                                                                display: "block",
+                                                                                color: getStatusColor2(v.coordinator_approval_status)
+                                                                            }}
+                                                                        >
+                                                                            {v.coordinator_approval_status}
+                                                                        </Typography>
+
+                                                                    </React.Fragment>
+                                                                }
+                                                            />
+                                                        </ListItem>
+                                                    </List>
+                                                ))
+                                            }
+
 
 
 
@@ -325,7 +392,7 @@ function Fill(params) {
                                                     }}
                                                 >
                                                     <Alert severity="info" icon={<WarningRoundedIcon />}>
-                                                        Pemberitahuan
+                                                        Proposal Anda Dinyatakan Sudah Lulus Apabila di "APPROVED" Dosen koordinator Anda.
                                                     </Alert>
                                                     <Typography variant="subtitle1" fontWeight="medium">
                                                         Informasi revisi proposal mahasiswa:
@@ -334,13 +401,13 @@ function Fill(params) {
                                                         1. Upload file proposal terbaru anda yang sudah dilakukan revisi atau perbaikan
                                                     </Typography>
                                                     <Typography variant="body1" gutterBottom>
-                                                        2. Dokumen yang diupload harus dalam format .pdf
+                                                        2. Dokumen yang diupload harus dalam format .pdf atau .docx
                                                     </Typography>
                                                     <Typography variant="body1" gutterBottom>
                                                         3. Pada bagian kanan atas Cover proposal diberikan keterangan revisi
                                                     </Typography>
                                                     <Typography variant="body1" gutterBottom>
-                                                        4. Hubungi dosen pembimbing atau dosen penguji untuk melakukan review ulang terhadap revisi yang telah dilakukan.
+                                                        4. Hubungi dosen pembimbing atau dosen penguji yang memberikan revisi untuk melakukan review ulang proposal anda.
                                                     </Typography>
                                                 </Box>
 
@@ -362,13 +429,13 @@ function Fill(params) {
                                                                 tabIndex={-1}
                                                                 startIcon={<CloudUploadIcon />}
                                                             >
-                                                                PDF
+                                                                File
                                                                 <input type="file" style={{ display: 'none' }} />
                                                             </Button>
 
                                                         </ListItemAvatar>
                                                         <ListItemAvatar sx={{ marginLeft: 3 }}>
-                                                            <Button disabled={disabledButton} sx={{ paddingX: 5 }} variant="outlined" type='submit'> {postLoading ? <CircularProgress sx={{ color: "#1975D1" }} size={24} /> : "Revision"}
+                                                            <Button disabled={disabledButton} sx={{ paddingX: 5 }} variant="outlined" type='submit'> {postLoading ? <CircularProgress sx={{ color: "#1975D1" }} size={24} /> : "Simpan Revisi"}
                                                             </Button>
                                                         </ListItemAvatar>
                                                     </ListItem>

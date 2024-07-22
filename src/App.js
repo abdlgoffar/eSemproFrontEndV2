@@ -30,6 +30,8 @@ import AcademicAdministrationAttendance from "./pages/AcademicAdministrationAtte
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import ExaminerProposal from "./pages/ExaminerProposal";
+import SupervisorProposalList from "./pages/SupervisorProposalList";
+import HeadStudyProgramProposalList from "./pages/HeadStudyProgramProposalList";
 
 
 
@@ -45,23 +47,24 @@ function App() {
           <Route path="/students/upload" element={<ProtectedRoute><StudentUpload /></ProtectedRoute>} />
           <Route path="/students/proposal/detail/:proposalId" element={<ProtectedRoute><StudentProposalDetail /></ProtectedRoute>} />
           <Route path="/students/invitation" element={<ProtectedRoute><StudentInvitation /></ProtectedRoute>} />
-          <Route path="/students/attendance" element={<ProtectedRoute><StudentAttendance /></ProtectedRoute>} />
+          {/* <Route path="/students/attendance" element={<ProtectedRoute><StudentAttendance /></ProtectedRoute>} /> */}
 
           {/* Head Study Program pages */}
           <Route path="/head-study-programs/proposal" element={<ProtectedRoute><HeadStudyProgramProposal /></ProtectedRoute>} />
+          <Route path="/head-study-programs/proposal-mahasiswa" element={<ProtectedRoute><HeadStudyProgramProposalList /></ProtectedRoute>} />
           <Route path="/head-study-programs/proposal/detail/:proposalId" element={<ProtectedRoute><HeadStudyProgramProposalDetail /></ProtectedRoute>} />
 
           {/* Academic Administration pages */}
           <Route path="/academic-administrations/invitation" element={<ProtectedRoute><AcademicAdministrationInvitation /></ProtectedRoute>} />
           <Route path="/academic-administrations/user" element={<ProtectedRoute><AcademicAdministrationUser /></ProtectedRoute>} />
-          <Route path="/academic-administrations/attendance" element={<ProtectedRoute><AcademicAdministrationAttendance /></ProtectedRoute>} />
+          {/* <Route path="/academic-administrations/attendance" element={<ProtectedRoute><AcademicAdministrationAttendance /></ProtectedRoute>} /> */}
 
           {/* Examiner pages */}
           {/* <Route path="/examiners/revision" element={<ProtectedRoute><ExaminerRevision /></ProtectedRoute>} /> */}
           <Route path="/examiners/proposal/detail/:proposalId" element={<ProtectedRoute><ExaminerProposalDetail /></ProtectedRoute>} />
           <Route path="/examiners/proposal" element={<ProtectedRoute><ExaminerProposal /></ProtectedRoute>} />
           <Route path="/examiners/invitation" element={<ProtectedRoute><ExaminerInvitation /></ProtectedRoute>} />
-          <Route path="/examiners/attendance" element={<ProtectedRoute><ExaminerAttendance /></ProtectedRoute>} />
+          {/* <Route path="/examiners/attendance" element={<ProtectedRoute><ExaminerAttendance /></ProtectedRoute>} /> */}
 
           {/* Coordinator pages */}
           <Route path="/coordinators/proposal" element={<ProtectedRoute><CoordinatorProposal /></ProtectedRoute>} />
@@ -70,6 +73,7 @@ function App() {
 
           {/* Supervisor pages */}
           <Route path="/supervisors/proposal" element={<ProtectedRoute><SupervisorProposal /></ProtectedRoute>} />
+          <Route path="/supervisors/proposal-mahasiswa" element={<ProtectedRoute><SupervisorProposalList /></ProtectedRoute>} />
           <Route path="/supervisors/proposal/detail/:proposalId" element={<ProtectedRoute><SupervisorProposalDetail /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFound />} />

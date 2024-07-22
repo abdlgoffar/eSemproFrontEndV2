@@ -1,10 +1,9 @@
 import * as React from 'react';
 
-import { Box, Button, CssBaseline, FormLabel, Grid, MenuItem, TextField, Paper, Select, Tooltip, styled, CircularProgress, ListItem, Checkbox, ListItemButton, ListItemAvatar, Avatar, ListItemText, Divider } from "@mui/material";
+import { Box, Button, CssBaseline, FormLabel, Grid, MenuItem, TextField, Paper, Select, Tooltip, styled, CircularProgress, ListItem, Checkbox, ListItemButton, ListItemAvatar, Avatar, ListItemText, Divider, FormControl, InputLabel } from "@mui/material";
 import AppBarAndDrawer from "../components/AppBarAndDrawer";
 import Feed from "../components/Feed";
 
-import PortraitIcon from '@mui/icons-material/Portrait';
 import { academicAdministartionsPages } from "../helpers/constants";
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useSession } from '../contexts/SessionContext';
@@ -18,30 +17,16 @@ const FormGrid = styled(Grid)(() => ({
     flexDirection: 'column',
 }));
 
-const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-});
 
 const CardCheckbox = styled("div")(({ theme }) => ({
     margin: 3,
-    padding: 10,
+    padding: 1,
     display: "flex",
     justifyContent: "space-between",
     boxShadow: "rgba(0, 0, 0, 0.02) 0px 1px 3px 0px, rgba(27, 31, 35, 0.15) 0px 0px 0px 1px"
 }));
 
-const LabelCheckbox = styled("label")(({ theme }) => ({
-    display: "flex",
-    alignItems: "center"
-}));
+
 
 export const InputCheckbox = styled("input")(({ theme }) => ({
     height: "100%"
@@ -87,25 +72,6 @@ function Fill(params) {
         get()
     }, [token]);
 
-
-    // Get data
-
-    // React.useEffect(() => {
-    //     async function get() {
-    //         if (token) {
-    //             try {
-    //                 const response = await getUserUsername(token);
-    //                 console.log(response);
-    //             } catch (error) {
-    //                 console.log('Error get user username', error.message);
-    //             } finally {
-
-    //             }
-    //         }
-    //     }
-    //     get();
-    // }, [token]);
-
     React.useEffect(() => {
         async function get() {
             try {
@@ -122,7 +88,6 @@ function Fill(params) {
         async function get() {
             try {
                 const response = await getStudents(token, roomId);
-                console.log(response);
                 setStudents(response);
             } catch (error) {
                 console.log('Error get students ', error.message);
@@ -176,20 +141,25 @@ function Fill(params) {
             form.append("invitation_file", pdf);
         }
 
+        console.log(selectedItems);
 
         const body = {
+            "hour": hour,
+            "date": date,
+            "coordinator": coordinatorId,
             "students_proposals": selectedItems
+
         }
 
         let requestCreateInvitation = false;
         let invitationId;
 
-        console.log(form);
+
         try {
 
             //Request One
             let response = await createInvitation(form, token);
-            console.log(response);
+
             requestCreateInvitation = true;
             invitationId = response.invitation.id;
 
@@ -202,13 +172,12 @@ function Fill(params) {
         } catch (error) {
             setLoading(false);
             if (error.response) {
-
                 setError(true);
                 setErrorMessages(error.response.data.errors.messages);
-                //Server Error
-                if (error.response.data.errors.messages.create_invitation_data_failed) {
-                    setServerFailed(true);
-                }
+                // //Server Error
+                // if (error.response.data.errors.messages.create_invitation_data_failed) {
+                //     setServerFailed(true);
+                // }
                 //Rollback 
                 if (requestCreateInvitation === true) {
                     try {
@@ -242,8 +211,8 @@ function Fill(params) {
 
 
                             <FormGrid item xs={6} md={6}>
-                                <FormLabel htmlFor="implementation-date" required>
-                                    Date
+                                <FormLabel htmlFor="implementation-date">
+                                    Tanggal Pelaksanaan
                                 </FormLabel>
                                 <TextField
                                     id="implementation-date"
@@ -258,8 +227,8 @@ function Fill(params) {
                             </FormGrid>
 
                             <FormGrid item xs={6} md={6}>
-                                <FormLabel htmlFor="implementation-hour" required>
-                                    Hour
+                                <FormLabel htmlFor="implementation-hour">
+                                    Jam Pelaksanaan
                                 </FormLabel>
                                 <TextField
                                     id="implementation-hour"
@@ -274,8 +243,8 @@ function Fill(params) {
                             </FormGrid>
 
                             <FormGrid item xs={12}>
-                                <FormLabel htmlFor="coordinator" required>
-                                    Coordinator
+                                <FormLabel htmlFor="coordinator">
+                                    Dosen Coordinator
                                 </FormLabel>
                                 <Select
                                     id="coordinator"
@@ -289,42 +258,39 @@ function Fill(params) {
                                     }
                                 </Select>
                                 {(errorMessages.coordinator && error) && <p style={{ color: 'red' }}>{errorMessages.coordinator}</p>}
+                                {(errorMessages.coord_have_schedule && error) && <p style={{ color: 'red' }}>{errorMessages.coord_have_schedule}</p>}
                             </FormGrid>
 
                             <FormGrid item xs={12}>
                                 <Paper square variant="outlined" sx={{ background: "#C1C1C1" }}>
                                 </Paper>
                             </FormGrid>
-                            <FormGrid item xs={12} height={"200px"} sx={{ overflowY: "scroll" }} marginBottom={1} marginTop={2}>
+                            <FormGrid item xs={12} sx={{ overflowY: "scroll" }} marginBottom={1}>
 
-                                <Grid item xs={12}>
-                                    <FormLabel htmlFor="filter" >
-                                        Filter Berdasarkan Kelas ujian
-                                    </FormLabel>
+                                {/*  */}
+
+                                <FormControl variant="standard" sx={{ marginBottom: 3, width: 350 }}>
+                                    <InputLabel id="demo-simple-select-standard-label">Show proposal berdasarkan kelas ujian</InputLabel>
                                     <Select
-                                        sx={{ width: 300, display: "block" }}
-                                        id="filter"
+                                        labelId="demo-simple-select-standard-label"
+                                        id="demo-simple-select-standard"
+                                        defaultValue={""}
                                         onChange={e => setRoomId(e.target.value)}
-                                        variant="outlined"
-                                        defaultValue={""}>
+                                        label="Show proposal berdasarkan kelas ujian"
+                                    >
                                         {
                                             rooms.map((v, i) => (
                                                 <MenuItem key={i} value={v.id}>{v.name}</MenuItem>
                                             ))
                                         }
                                     </Select>
-                                </Grid>
+                                </FormControl>
 
+                                {/*  */}
                                 {
                                     students.map((v, i) => (
+
                                         <CardCheckbox key={i}>
-
-                                            {/* <Tooltip title={v.proposal_title}>
-                                                <LabelCheckbox htmlFor={`${v.proposal_id}`}><PortraitIcon fontSize="large" sx={{ marginRight: 1 }} />{v.student_name}</LabelCheckbox>
-                                            </Tooltip>
-
-                                            <InputCheckbox type="checkbox" id={`${v.proposal_id}`} value={`${v.proposal_id}`} checked={selectedItems.includes(`${v.proposal_id}`)} onChange={handleChange} /> */}
-
                                             <ListItem
                                                 secondaryAction={
                                                     <Checkbox
@@ -353,6 +319,7 @@ function Fill(params) {
                                     ))
                                 }
                                 {(errorMessages.students_proposals && error) && <p style={{ color: 'red' }}>{errorMessages.students_proposals}</p>}
+                                {(errorMessages.examiner_have_schedule && error) && <p style={{ color: 'red' }}>{errorMessages.examiner_have_schedule}</p>}
                             </FormGrid>
 
                             <FormGrid item xs={3} md={3}>
@@ -370,7 +337,7 @@ function Fill(params) {
                                 {(errorMessages.invitation_file && error) && <p style={{ color: 'red' }}>{errorMessages.invitation_file}</p>}
                             </FormGrid>
                             <FormGrid item xs={9} md={9}>
-                                <Button variant="outlined" type='submit'> {loading ? <CircularProgress sx={{ color: "#1975D1" }} size={24} /> : "Invite"}
+                                <Button variant="outlined" type='submit'> {loading ? <CircularProgress sx={{ color: "#1975D1" }} size={24} /> : "Undang"}
                                 </Button>
                             </FormGrid>
                         </Grid>
@@ -396,7 +363,7 @@ const AcademicAdministrationInvitation = () => {
             <CssBaseline />
 
             {/* Navigation or appbar and drawer */}
-            <AppBarAndDrawer title={"Pengundangan"} pages={academicAdministartionsPages()} />
+            <AppBarAndDrawer title={"Pengundangan Seminar"} pages={academicAdministartionsPages()} />
 
             {/* Content */}
             <Feed>

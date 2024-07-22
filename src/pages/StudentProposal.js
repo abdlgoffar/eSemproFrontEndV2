@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Avatar, Box, CircularProgress, CssBaseline, FormLabel, Grid, ListItemAvatar, Paper, Stack, Typography, styled } from "@mui/material";
+import { Alert, AlertTitle, Avatar, Box, CircularProgress, CssBaseline, FormLabel, Grid, ListItemAvatar, Paper, Stack, Typography, styled } from "@mui/material";
 import AppBarAndDrawer from "../components/AppBarAndDrawer";
 import { studentPages } from "../helpers/constants";
 import Feed from "../components/Feed";
@@ -47,7 +47,6 @@ function Fill(params) {
             {loading ? (
                 <Grid item xs={12} minHeight={"100vh"} width={"100%"} display={"flex"} alignItems={"center"} justifyContent={"center"}>
                     <CircularProgress />
-
                 </Grid>
             ) : (
                 proposals.length > 0 ? (
@@ -91,11 +90,10 @@ function Fill(params) {
                     ))
                 ) : (
                     <Grid item xs={12}>
-                        <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: "78vh" }}>
-                            <Typography variant="body1" color="text.secondary">
-                                <FormLabel>PROPOSAL TIDAK TERSEDIA</FormLabel>
-                            </Typography>
-                        </Paper>
+                        <Alert severity="info">
+                            <AlertTitle>Info</AlertTitle>
+                            Proposal Tidak Tersedia
+                        </Alert>
                     </Grid>
                 )
             )}

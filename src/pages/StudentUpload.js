@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Box, Button, CircularProgress, CssBaseline, FormLabel, Grid, MenuItem, Paper, Select, TextField, Typography, styled } from "@mui/material";
+import { Alert, Backdrop, Box, Button, CircularProgress, CssBaseline, FormLabel, Grid, MenuItem, Paper, Select, TextField, Typography, styled } from "@mui/material";
 import AppBarAndDrawer from "../components/AppBarAndDrawer";
 import Feed from "../components/Feed";
 
@@ -25,7 +25,6 @@ function Fill(params) {
     const [date, setDate] = React.useState("");
 
     const [pdf, setPdf] = React.useState();
-    const [redirectToReferrer, setRedirectToReferrer] = React.useState(false);
     const { token } = useSession();
     const [error, setError] = React.useState(false);
     const [serverSucces, setServerSucces] = React.useState(false);
@@ -76,6 +75,7 @@ function Fill(params) {
         if (serverSucces === true) {
             setTimeout(() => {
                 setServerSucces(false);
+                window.location.reload();
             }, 3000);
         }
     }, [serverSucces]);
@@ -84,6 +84,7 @@ function Fill(params) {
         if (serverFailed === true) {
             setTimeout(() => {
                 setServerFailed(false);
+                window.location.reload();
             }, 3000);
         }
     }, [serverFailed]);
@@ -121,9 +122,7 @@ function Fill(params) {
 
             //Request Two
             await createStudentsSupervisors(body, token, response.proposal.id);
-
             setServerSucces(true);
-            setRedirectToReferrer(true);
             setLoading(false);
         } catch (error) {
             setLoading(false);
@@ -150,13 +149,10 @@ function Fill(params) {
         }
     }
 
-    if (redirectToReferrer) {
-        window.location.reload();
-    }
+
 
     return (
         <Grid container spacing={3}>
-
             {/* Row one */}
             <Grid item xs={12}>
                 <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
@@ -176,14 +172,14 @@ function Fill(params) {
                             Informasi upload proposal mahasiswa:
                         </Typography>
                         <Typography variant="body1" gutterBottom>
-                            1. Dokumen yang sudah diupload tidak bisa diupdate atau diubah
+                            1. Dokumen yang sudah diupload tidak bole diubah Kecuali ada saran Revisi dari dosen pembimbing atau penguji.
                         </Typography>
                         <Typography variant="body1" gutterBottom>
                             2. Dokumen yang diupload harus dalam format .pdf atau .docx
                         </Typography>
 
                         <Typography variant="body1" gutterBottom>
-                            3. Size maximal dokumen 2MB
+                            3. Upload Proposal yang sudah fix sesuai ketentuan.
                         </Typography>
                     </Box>
 
@@ -192,15 +188,14 @@ function Fill(params) {
                 </Paper>
 
             </Grid>
-
             {/* Row two */}
             <Grid item xs={12}>
                 <form onSubmit={createProposalSubmit}>
                     <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
                         <Grid container spacing={3}>
                             <FormGrid item xs={12}>
-                                <FormLabel htmlFor="proposal-title" required>
-                                    Proposal Title
+                                <FormLabel htmlFor="proposal-title" >
+                                    Judul Proposal
                                 </FormLabel>
                                 <TextField
                                     id="proposal-title"
@@ -213,8 +208,8 @@ function Fill(params) {
                             </FormGrid>
 
                             <FormGrid item xs={6} md={6}>
-                                <FormLabel htmlFor="proposal-date" required>
-                                    Date
+                                <FormLabel htmlFor="proposal-date" >
+                                    Tanggal
                                 </FormLabel>
                                 <TextField
                                     id="proposal-date"
@@ -228,8 +223,8 @@ function Fill(params) {
                             </FormGrid>
 
                             <FormGrid item xs={6} md={6}>
-                                <FormLabel htmlFor="period" required>
-                                    Period
+                                <FormLabel htmlFor="period" >
+                                    Periode
                                 </FormLabel>
                                 <Select
                                     id="period"
@@ -240,10 +235,11 @@ function Fill(params) {
                                     <MenuItem value={"Ganjil"} >{"Ganjil"}</MenuItem>
                                     <MenuItem value={"Genap"}>{"Genap"}</MenuItem>
                                 </Select>
+                                {(errorMessages.period && error) && <p style={{ color: 'red' }}>{errorMessages.period}</p>}
                             </FormGrid>
                             <FormGrid item xs={12}>
-                                <FormLabel htmlFor="proposal-supervisors-1" required>
-                                    Supervisors 1
+                                <FormLabel htmlFor="proposal-supervisors-1" >
+                                    Pembimbing
                                 </FormLabel>
                                 <Select
                                     id="proposal-supervisors-1"
@@ -259,8 +255,8 @@ function Fill(params) {
                                 {(errorMessages.supervisors && error) && <p style={{ color: 'red' }}>{errorMessages.supervisors}</p>}
                             </FormGrid>
                             <FormGrid item xs={12}>
-                                <FormLabel htmlFor="proposal-supervisors-2" required>
-                                    Supervisors 2
+                                <FormLabel htmlFor="proposal-supervisors-2" >
+                                    Co Pembimbing
                                 </FormLabel>
                                 <Select
                                     id="proposal-supervisors-2"
@@ -275,8 +271,8 @@ function Fill(params) {
                                 </Select>
                                 {(errorMessages.supervisors && error) && <p style={{ color: 'red' }}>{errorMessages.supervisors}</p>}
                             </FormGrid>
-                            <FormGrid item xs={12}>
-                                <FormLabel htmlFor="proposal-supervisors-3" required>
+                            {/* <FormGrid item xs={12}>
+                                <FormLabel htmlFor="proposal-supervisors-3" >
                                     Supervisors 3
                                 </FormLabel>
                                 <Select
@@ -291,7 +287,7 @@ function Fill(params) {
                                     }
                                 </Select>
                                 {(errorMessages.supervisors && error) && <p style={{ color: 'red' }}>{errorMessages.supervisors}</p>}
-                            </FormGrid>
+                            </FormGrid> */}
                             <FormGrid item xs={3} md={3}>
                                 <Button
                                     component="label"
@@ -301,7 +297,7 @@ function Fill(params) {
                                     tabIndex={-1}
                                     startIcon={<CloudUploadIcon />}
                                 >
-                                    PDF
+                                    File
                                     <input type="file" style={{ display: 'none' }} />
                                 </Button>
                                 {(errorMessages.proposal_file && error) && <p style={{ color: 'red' }}>{errorMessages.proposal_file}</p>}
@@ -312,14 +308,24 @@ function Fill(params) {
                             </FormGrid>
                             <FormGrid item xs={12}>
                                 {serverFailed ? (
-                                    <Alert severity="error">
-                                        <Typography>Create Failed</Typography>
-                                    </Alert>
+                                    <Backdrop
+                                        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                                        open={true}
+                                    >
+                                        <Alert severity="error" color="error">
+                                            This is a success. Upload Proposal Data Failed
+                                        </Alert>
+                                    </Backdrop>
                                 ) : (
                                     serverSucces && (
-                                        <Alert severity="success">
-                                            <Typography>Create success</Typography>
-                                        </Alert>
+                                        <Backdrop
+                                            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                                            open={true}
+                                        >
+                                            <Alert severity="success" color="success">
+                                                This is a success. Upload Proposal Data Successfully
+                                            </Alert>
+                                        </Backdrop>
                                     )
                                 )}
                             </FormGrid>

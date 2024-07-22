@@ -9,18 +9,18 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import { login, order } from '../api/users';
+import { login } from '../api/users';
 import { useSession } from '../contexts/SessionContext';
 import { Navigate } from 'react-router-dom';
 import { CircularProgress, MenuItem, Select } from '@mui/material';
 
 const roleList = [
-    { id: 1, value: "examiners", name: "Examiner" },
-    { id: 2, value: "coordinators", name: "Coordinator" },
-    { id: 3, value: "supervisors", name: "Supervisor" },
-    { id: 4, value: "head-study-programs", name: "Head Study Program" },
-    { id: 5, value: "students", name: "Student" },
-    { id: 6, value: "academic-administrations", name: "Academic Adminitration" },
+    { id: 1, value: "examiners", name: "Dosen Penguji" },
+    { id: 2, value: "coordinators", name: "Dosen Koordinator" },
+    { id: 3, value: "supervisors", name: "Dosen Pembimbing" },
+    { id: 4, value: "head-study-programs", name: "Kaprodi" },
+    { id: 5, value: "students", name: "Mahasiswa" },
+    { id: 6, value: "academic-administrations", name: "BAA" },
 ]
 
 
@@ -53,7 +53,7 @@ export default function Login() {
         if (error === true) {
             setTimeout(() => {
                 setError(false);
-                window.location.reload();
+
             }, 2000);
         }
     }, [error]);
@@ -104,7 +104,7 @@ export default function Login() {
             case "academic-administrations":
                 return <Navigate to="/academic-administrations/user" />;
             default:
-                return "/";
+                return <Navigate to="/" />;
         }
     } else {
 
@@ -137,11 +137,10 @@ export default function Login() {
                             name="email"
                             autoComplete="email"
                             autoFocus
-                            error={error && (errorMessages.username || errorMessages.account_not_found)}
-                            helperText={error && (errorMessages.username || errorMessages.account_not_found)}
+                            error={Array.isArray(error) ? error.length > 0 : Boolean(error && (errorMessages.username || errorMessages.account_not_found))}
+                            helperText={Array.isArray(error) ? error.join(', ') : error && (errorMessages.username || errorMessages.account_not_found)}
                             onChange={e => setUsername(e.target.value)}
                         />
-
                         <TextField
                             margin="normal"
                             fullWidth
@@ -150,11 +149,10 @@ export default function Login() {
                             type="password"
                             id="password"
                             autoComplete="current-password"
-                            error={error && (errorMessages.password || errorMessages.account_not_found)}
-                            helperText={error && (errorMessages.password || errorMessages.account_not_found)}
+                            error={Array.isArray(error) ? error.length > 0 : Boolean(error && (errorMessages.password || errorMessages.account_not_found))}
+                            helperText={Array.isArray(error) ? error.join(', ') : error && (errorMessages.password || errorMessages.account_not_found)}
                             onChange={e => setPassword(e.target.value)}
                         />
-
                         <Select
                             fullWidth
                             sx={{ mt: 2 }}
@@ -167,7 +165,8 @@ export default function Login() {
                                 ))
                             }
                         </Select>
-                        <Typography sx={{ color: "red" }}>{error && errorMessages.role}</Typography>
+                        <Typography sx={{ color: "red" }} component={"span"}>{error && errorMessages.role}</Typography>
+
                         <Button
                             type="submit"
                             fullWidth
@@ -181,5 +180,6 @@ export default function Login() {
                 <Copyright sx={{ mt: 8, mb: 4 }} />
             </Container>
         </ThemeProvider>
+
     );
 }

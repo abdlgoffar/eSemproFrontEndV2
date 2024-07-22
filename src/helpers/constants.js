@@ -3,28 +3,22 @@ export function studentPages() {
     const data = [
         {
             id: 1,
-            name: "Proposal",
+            name: "Proposal Saya",
             link: "/students/proposal",
             icon: "Proposal",
         },
         {
             id: 2,
-            name: "Upload",
+            name: "Upload Proposal",
             link: "/students/upload",
             icon: "Upload",
         },
         {
             id: 3,
-            name: "Invitation",
+            name: "Undangan Seminar",
             link: "/students/invitation",
             icon: "Invitation",
-        },
-        {
-            id: 4,
-            name: "Attendance",
-            link: "/students/attendance",
-            icon: "Attendance",
-        },
+        }
     ];
 
     return data;
@@ -34,8 +28,14 @@ export function headStudyProgramPages() {
     const data = [
         {
             id: 1,
-            name: "Proposal",
+            name: "Kelola Proposal",
             link: "/head-study-programs/proposal",
+            icon: "Proposal",
+        },
+        {
+            id: 2,
+            name: "Proposal Mahasiswa",
+            link: "/head-study-programs/proposal-mahasiswa",
             icon: "Proposal",
         },
 
@@ -49,22 +49,16 @@ export function academicAdministartionsPages() {
 
         {
             id: 1,
-            name: "Invitation",
+            name: "Pengundangan",
             link: "/academic-administrations/invitation",
             icon: "Invitation",
         },
         {
             id: 2,
-            name: "User",
+            name: "Kelola Pengguna",
             link: "/academic-administrations/user",
             icon: "User",
-        },
-        {
-            id: 3,
-            name: "Attendance",
-            link: "/academic-administrations/attendance",
-            icon: "Attendance",
-        },
+        }
 
     ];
 
@@ -75,23 +69,16 @@ export function examinerPages() {
     const data = [
         {
             id: 1,
-            name: "Proposal",
+            name: "Penilaian",
             link: "/examiners/proposal",
             icon: "Proposal",
         },
         {
             id: 2,
-            name: "Invitation",
+            name: "Undangan Seminar",
             link: "/examiners/invitation",
             icon: "Invitation",
-        },
-
-        {
-            id: 3,
-            name: "Attendance",
-            link: "/examiners/attendance",
-            icon: "Attendance",
-        },
+        }
     ];
 
     return data;
@@ -101,13 +88,13 @@ export function coordinatorPages() {
     const data = [
         {
             id: 1,
-            name: "Invitation",
+            name: "Undangan Seminar",
             link: "/coordinators/invitation",
             icon: "Invitation",
         },
         {
             id: 2,
-            name: "Proposal",
+            name: "Pemutusan Nilai",
             link: "/coordinators/proposal",
             icon: "Proposal",
         },
@@ -120,10 +107,16 @@ export function supervisorPages() {
     const data = [
         {
             id: 1,
-            name: "Proposal",
+            name: "Persetujuan",
             link: "/supervisors/proposal",
             icon: "Proposal",
         },
+        {
+            id: 2,
+            name: "Proposal Mahasiswa",
+            link: "/supervisors/proposal-mahasiswa",
+            icon: "Proposal",
+        }
     ];
 
     return data;

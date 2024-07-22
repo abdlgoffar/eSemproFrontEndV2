@@ -23,9 +23,40 @@ export const getAllHeadStudyProgram = async (token) => {
     }
 }
 
-export const getHeadStudyProgramProposal = async (token) => {
+export const getAllHeadStudyProgramExaminers = async (token, proposalId) => {
     try {
-        const response = await axios.get(`${url}/head-study-programs/get/proposals`, {
+        const response = await axios.get(`${url}/head-study-programs/get/all/examiners/${proposalId}`, {
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export const getHeadStudyProgramProposal = async (token, page) => {
+    try {
+        const response = await axios.get(`${url}/head-study-programs/get/proposals?page=${page}`, {
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const getHeadStudyProgramProposalHaveExaminers = async (token, page) => {
+    try {
+        const response = await axios.get(`${url}/head-study-programs/get/proposals/examiners?page=${page}`, {
             headers: {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${token}`
@@ -58,6 +89,20 @@ export const getHeadStudyProgramProposalByProposalId = async (token, proposalId)
 export const createProposalApprovalStatusRoomAndExaminer = async (data, token, proposalId) => {
     try {
         const response = await axios.post(`${url}/head-study-programs/create/proposals/approval/${proposalId}`, data, {
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const updateProposalExaminer = async (data, token) => {
+    try {
+        const response = await axios.post(`${url}/head-study-programs/update/proposals/examiner`, data, {
             headers: {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${token}`

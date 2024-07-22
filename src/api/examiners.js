@@ -36,9 +36,9 @@ export const getInvitations = async (token) => {
     }
 }
 
-export const getProposals = async (token) => {
+export const getExaminerProposal = async (token, page) => {
     try {
-        const response = await axios.get(`${url}/examiners/get/proposals`, {
+        const response = await axios.get(`${url}/examiners/get/proposals?page=${page}`, {
             headers: {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${token}`

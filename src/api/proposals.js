@@ -39,7 +39,39 @@ export const getProposalPdf = async (id, token) => {
                 'Authorization': `Bearer ${token}`
             }
         });
-        return response.data;
+        return response;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+
+export const getOldProposalPdf = async (id, token) => {
+    try {
+        const response = await axios.get(`${url}/proposals/get/old/pdf/${id}`, {
+            responseType: 'blob',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        return response;
+    } catch (error) {
+        throw error;
+    }
+}
+
+
+export const getNewProposalPdf = async (id, token) => {
+    try {
+        const response = await axios.get(`${url}/proposals/get/new/pdf/${id}`, {
+            responseType: 'blob',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response;
     } catch (error) {
         throw error;
     }

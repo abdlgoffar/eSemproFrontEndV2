@@ -1,16 +1,7 @@
-import { Box, Grid, Typography } from "@mui/material";
-import Feed from "../components/Feed";
+
+import { Container, Typography } from '@mui/material';
 
 
-function Fill(params) {
-    return (
-        <Grid item xs={12} Height={"100vh"} width={"100%"} display={"flex"} alignItems={"center"} justifyContent={"center"}>
-            <Typography variant="h6" color={"#b0bec5"} >
-                404 PAGE NOT FOUND
-            </Typography>
-        </Grid>
-    )
-}
 
 
 
@@ -18,16 +9,16 @@ function Fill(params) {
 const NotFound = () => {
 
     return (
-
-        <Box sx={{ display: 'flex' }}>
-
-            <Feed>
-                <Fill />
-            </Feed>
-
-        </Box>
-
-    )
+        <Container maxWidth="sm" style={{ marginTop: '2rem', textAlign: 'center' }}>
+            <Typography variant="h3" component="h1" gutterBottom>
+                Tidak Ditemukan
+            </Typography>
+            <Typography variant="body1" component="p">
+                Maaf, Resource yang Anda cari tidak ditemukan.
+            </Typography>
+            {/* Anda bisa menambahkan desain atau komponen tambahan di sini */}
+        </Container>
+    );
 }
 
 export default NotFound;

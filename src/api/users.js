@@ -28,6 +28,20 @@ export const login = async (data) => {
     }
 }
 
+export const logout = async (token) => {
+    try {
+        const response = await axios.delete(`${url}/users/logout`, {
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
 
 export const get = async (token) => {
     try {
@@ -121,6 +135,20 @@ export const createCoordinator = async (data, token) => {
 export const createSupervisor = async (data, token) => {
     try {
         const response = await axios.post(`${url}/users/supervisors/create`, data, {
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+}
+
+export const createUser = async (data, token) => {
+    try {
+        const response = await axios.post(`${url}/users/create`, data, {
             headers: {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${token}`

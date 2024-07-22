@@ -5,8 +5,8 @@ import { Avatar, Box, Button, Chip, CircularProgress, CssBaseline, Divider, Form
 import AppBarAndDrawer from "../components/AppBarAndDrawer";
 import Feed from "../components/Feed";
 import { coordinatorPages } from "../helpers/constants";
-import BrowserUpdatedIcon from '@mui/icons-material/BrowserUpdated';
-import GroupIcon from '@mui/icons-material/Group';
+import { getNewProposalPdf, getOldProposalPdf } from '../api/proposals';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { createProposalAssessmentStatus, getCoordinatorProposalByProposalId } from '../api/coordinators';
 import { Navigate, useParams } from 'react-router-dom';
 import { useSession } from '../contexts/SessionContext';
@@ -49,6 +49,56 @@ function Fill(params) {
                 return 'black';
         }
     };
+
+    const handleDownloadOldPdf = async () => {
+        try {
+
+            const response = await getOldProposalPdf(proposalId, token);
+
+            // Check Content-Type header
+            const contentType = response.headers.get('Content-Type');
+
+
+            const url = window.URL.createObjectURL(new Blob([response], { type: contentType }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${proposal.title}`);
+            document.body.appendChild(link);
+            link.click();
+
+            // clear URL
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            setGetLoading(true);
+            console.error('Error get proposal pdf: ', error);
+        }
+    }
+
+    const handleDownloadNewPdf = async () => {
+        try {
+
+            const response = await getNewProposalPdf(proposalId, token);
+
+            // Check Content-Type header
+            const contentType = response.headers.get('Content-Type');
+
+
+            const url = window.URL.createObjectURL(new Blob([response], { type: contentType }));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${proposal.title}`);
+            document.body.appendChild(link);
+            link.click();
+
+            // clear URL
+            link.parentNode.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            setGetLoading(true);
+            console.error('Error get proposal pdf: ', error);
+        }
+    }
 
     React.useEffect(() => {
         if (error === true) {
@@ -144,15 +194,15 @@ function Fill(params) {
 
                                                 </Avatar>
                                             </Paper>
-                                            <Paper square variant="outlined" sx={{ display: "flex", alignItems: "center", flexDirection: "column", marginTop: 1 }}>
-                                                <Typography variant="caption">
-                                                    Name: Abd Goffar
+                                            <Paper square variant="outlined" sx={{ display: "flex", alignItems: "center", flexDirection: "column", marginTop: 1, paddingY: 2 }}>
+                                                <Typography variant="subtitle2">
+                                                    Name:  {proposal.name}
                                                 </Typography>
-                                                <Typography variant="caption">
-                                                    Nrp: 211221006
+                                                <Typography variant="subtitle2">
+                                                    Nrp:  {proposal.nrp}
                                                 </Typography>
-                                                <Typography variant="caption">
-                                                    Phone: 082317673883
+                                                <Typography variant="subtitle2">
+                                                    Phone:  {proposal.phone}
                                                 </Typography>
                                             </Paper>
 
@@ -162,7 +212,12 @@ function Fill(params) {
                                             <Typography variant="body1">
                                                 {proposal.title}
                                             </Typography>
-                                            <BrowserUpdatedIcon sx={{ marginY: 1, background: "#1976D2", color: "white", p: "0.5px" }} />
+
+
+                                            <div style={{ width: "100%" }}>
+                                                <Chip size='small' color="primary" variant="outlined" style={{ marginRight: "10px", marginTop: "10px" }} onClick={handleDownloadOldPdf} sx={{}} icon={<FileDownloadIcon />} label="Proposal" />
+                                                <Chip size='small' color="primary" variant="outlined" style={{ marginTop: "10px" }} onClick={handleDownloadNewPdf} sx={{}} icon={<FileDownloadIcon />} label="Revisi" />
+                                            </div>
 
                                             <Divider textAlign="left" sx={{ marginTop: 5 }}><Chip label="Dosen penguji" size="small" /></Divider>
 
@@ -218,10 +273,8 @@ function Fill(params) {
                                                 ))
                                             }
 
-
-
-                                            <FormLabel htmlFor="status-approval" required sx={{ marginTop: 3 }}>
-                                                Coordinator Assestment
+                                            <FormLabel htmlFor="status-approval" sx={{ marginTop: 3 }}>
+                                                Penilaian Dosen Coordinator
                                             </FormLabel>
                                             <Select
                                                 id="status-approval"
@@ -235,7 +288,7 @@ function Fill(params) {
                                             </Select>
                                             {(errorMessages.coordinator_assessment_status && error) && <p style={{ color: 'red' }}>{errorMessages.coordinator_assessment_status}</p>}
                                             <Button disabled={disabledButton} sx={{ marginY: 2, width: "100%" }} variant="outlined" type='submit'>
-                                                {postLoading ? <CircularProgress sx={{ color: "#1975D1" }} size={24} /> : proposal.coordinator_approval_status}
+                                                {postLoading ? <CircularProgress sx={{ color: "#1975D1" }} size={24} /> : "Simpan"}
                                             </Button>
                                         </LayoutGrid>
 
@@ -261,7 +314,7 @@ const CoordinatorProposalDetail = () => {
             <CssBaseline />
 
             {/* Navigation or appbar and drawer */}
-            <AppBarAndDrawer title={"Pemutusan Nilai Proposal"} pages={coordinatorPages()} />
+            <AppBarAndDrawer title={"Pemutusan Nilai Proposal Koordinator"} pages={coordinatorPages()} />
 
             {/* Content */}
             <Feed>

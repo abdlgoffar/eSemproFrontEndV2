@@ -1,5 +1,5 @@
-import { Avatar, Badge, Chip, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, Toolbar, Typography, styled } from "@mui/material";
-import { useState } from "react";
+import { Avatar, Chip, Divider, IconButton, List, ListItemButton, ListItemIcon, Toolbar, Typography, styled, useMediaQuery } from "@mui/material";
+import { useEffect, useState } from "react";
 import MenuIcon from '@mui/icons-material/Menu';
 
 import MuiDrawer from '@mui/material/Drawer';
@@ -7,7 +7,9 @@ import ListItems from "../templates/dashboard/listItems";
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import MuiAppBar from '@mui/material/AppBar';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
-import { getUserUsername } from "../api/users";
+import { getUserUsername, logout } from "../api/users";
+import { useSession } from "../contexts/SessionContext";
+
 
 
 
@@ -58,14 +60,67 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
-const AppBarAndDrawer = ({ pages, title, username }) => {
+const AppBarAndDrawer = ({ pages, title }) => {
 
-    const [open, setOpen] = useState(true);
+    const isMobile = useMediaQuery('(max-width:600px)');
+    const [open, setOpen] = useState(!isMobile);
+    // const [open, setOpen] = useState(false);
+    const [username, setUsername] = useState(" ");
+    const { token, clearToken } = useSession();
+
 
     const toggleDrawer = () => {
         setOpen(!open);
 
     };
+
+    async function out() {
+        try {
+            await logout(token);
+            clearToken();
+            window.location.href = '/';
+        } catch (error) {
+            console.log('Error logout user ', error.message);
+        }
+    }
+
+
+
+
+    // Get data
+    useEffect(() => {
+        async function get() {
+            try {
+                const response = await getUserUsername(token);
+
+                if (response.academic_administration !== null) {
+                    setUsername(response.academic_administration.name);
+                }
+                if (response.student !== null) {
+                    setUsername(response.student.name);
+                }
+                if (response.coordinator !== null) {
+                    setUsername(response.coordinator.name);
+                }
+
+                if (response.examiner !== null) {
+                    setUsername(response.examiner.name);
+                }
+                if (response.supervisor !== null) {
+                    setUsername(response.supervisor.name);
+                }
+                if (response.head_study_program !== null) {
+                    setUsername(response.head_study_program.name);
+                }
+            } catch (error) {
+                console.log('Error get user username ', error.message);
+            }
+        }
+        get();
+    }, [token]);
+
+
+
 
 
     return (
@@ -99,9 +154,9 @@ const AppBarAndDrawer = ({ pages, title, username }) => {
                     </Typography>
                     <IconButton color="inherit" >
                         {/* <Avatar /> */}
-                        <Chip size={"150px"} avatar={<Avatar>{"U"}</Avatar>} label={"Username"} />
+                        <Chip size={"150px"} avatar={<Avatar>{username.charAt(0)}</Avatar>} label={username} />
                     </IconButton>
-                    <PowerSettingsNewIcon sx={{ color: '#BDBDBD', boxShadow: "rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;", borderRadius: "2px" }} />
+                    <PowerSettingsNewIcon onClick={out} sx={{ cursor: "pointer", color: '#BDBDBD', boxShadow: "rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;", borderRadius: "2px" }} />
                 </Toolbar>
             </AppBar>
             <Drawer variant="permanent" open={open}>

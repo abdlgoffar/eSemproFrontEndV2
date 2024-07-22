@@ -1,21 +1,26 @@
 
 import * as React from 'react';
-import { Box, CircularProgress, CssBaseline, FormLabel, Grid, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import { Box, CircularProgress, CssBaseline, FormLabel, Grid, Pagination, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import AppBarAndDrawer from "../components/AppBarAndDrawer";
 import Feed from "../components/Feed";
 import { examinerPages } from "../helpers/constants";
 
 import { useNavigate } from "react-router-dom";
 import { useSession } from "../contexts/SessionContext";
-import { getProposals } from "../api/examiners";
+import { getExaminerProposal } from "../api/examiners";
 
 
 
 
 
-function Fill(params) {
+function Fill() {
     const { token } = useSession();
     const [proposals, setProposals] = React.useState([]);
+
+    const [total, setTotal] = React.useState(0);
+    const [perPage, setPerPage] = React.useState(1);
+    const [page, setPage] = React.useState(1);
+
     const [loading, setLoading] = React.useState(true);
     const navigate = useNavigate();
 
@@ -26,52 +31,66 @@ function Fill(params) {
     // Get data
     React.useEffect(() => {
         async function get() {
+            setLoading(true); // Set loading to true while fetching data
             try {
-                const response = await getProposals(token);
-                setProposals(response);
+                const response = await getExaminerProposal(token, page);
+                setProposals(response.data); // Adjust this according to your API response
+                setTotal(response.total); // Adjust this according to your API response
+                setPerPage(response.per_page); // Adjust this according to your API response
             } catch (error) {
-                console.log('Error get examiner proposal', error.message);
+                console.log('Error examiner proposal', error.message);
             } finally {
-                setLoading(false);
+                setLoading(false); // Set loading to false after fetching data
             }
         }
         get();
-    }, [token]);
+    }, [token, page]);
+
+    const handlePageChange = (event, value) => {
+        setPage(parseInt(value, 10));
+    };
 
     return (
-        <Grid item xs={12} overflow={"scroll"} sx={{ background: "#FFFFFF" }} padding={3} borderRadius={2} marginLeft={3}>
-            <Table size="medium">
-                <TableHead>
+        <Grid item xs={12} overflow={"scroll"} sx={{ background: "#FFFFFF" }} padding={0} borderRadius={2} marginLeft={0}>
+            <Table size="small">
+                <TableHead sx={{ background: "#EBEBEB" }}>
                     <TableRow>
-                        <TableCell><FormLabel>No</FormLabel></TableCell>
-                        <TableCell><FormLabel>Name</FormLabel></TableCell>
-                        <TableCell><FormLabel>Nrp</FormLabel></TableCell>
-                        <TableCell><FormLabel>Title</FormLabel></TableCell>
-                        <TableCell><FormLabel>Upload Date</FormLabel></TableCell>
-                        <TableCell><FormLabel>Status</FormLabel></TableCell>
+                        <TableCell>No</TableCell>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Nrp</TableCell>
+                        <TableCell>Title</TableCell>
+                        <TableCell>Upload Date</TableCell>
+                        <TableCell>Status</TableCell>
+
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {loading ? (
                         <TableRow>
-                            <TableCell colSpan={6} align="center">
+                            <TableCell colSpan={7} align="center">
                                 <CircularProgress />
                             </TableCell>
                         </TableRow>
                     ) : (
                         proposals.map((v, i) => (
                             <TableRow sx={{ cursor: "pointer" }} key={i} onClick={() => navigateToProposalDetail(v.id)}>
-                                <TableCell><FormLabel>{i + 1}</FormLabel></TableCell>
-                                <TableCell><FormLabel>{v.name}</FormLabel></TableCell>
-                                <TableCell><FormLabel>{v.nrp}</FormLabel></TableCell>
-                                <TableCell><FormLabel>{v.title}</FormLabel></TableCell>
-                                <TableCell><FormLabel>{v.upload_date}</FormLabel></TableCell>
-                                <TableCell><FormLabel>{v.examiners_approval_status}</FormLabel></TableCell>
+                                <TableCell>{(page - 1) * perPage + i + 1}</TableCell>
+                                <TableCell>{v.name}</TableCell>
+                                <TableCell>{v.nrp}</TableCell>
+                                <TableCell>{v.title}</TableCell>
+                                <TableCell>{v.upload_date}</TableCell>
+                                <TableCell>{v.examiners_approval_status}</TableCell>
+
                             </TableRow>
                         ))
                     )}
                 </TableBody>
             </Table>
+            {!loading && (
+                <Box display="flex" justifyContent="center" marginY={3}>
+                    <Pagination count={Math.ceil(total / perPage)} page={page} onChange={handlePageChange} variant="outlined" shape="rounded" />
+                </Box>
+            )}
         </Grid>
     );
 }

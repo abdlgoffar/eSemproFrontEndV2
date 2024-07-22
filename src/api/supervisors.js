@@ -26,9 +26,9 @@ export const getAllSupervisors = async (token) => {
 
 
 
-export const getSupervisorProposal = async (token) => {
+export const getSupervisorProposal = async (token, page) => {
     try {
-        const response = await axios.get(`${url}/supervisors/get/proposals`, {
+        const response = await axios.get(`${url}/supervisors/get/proposals?page=${page}`, {
             headers: {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${token}`
